@@ -1,12 +1,11 @@
 const Sequelize = require("sequelize");
 
+const Model = Sequelize.Model;
 const sequelize = require("../util/database");
 
-const Model = Sequelize.Model;
+class User extends Model {}
 
-class Cart extends Model {}
-
-Cart.init(
+User.init(
   {
     id: {
       type: Sequelize.INTEGER,
@@ -14,8 +13,10 @@ Cart.init(
       allowNull: false,
       primaryKey: true,
     },
+    name: Sequelize.STRING,
+    email: Sequelize.STRING,
   },
-  { sequelize, modelName: "cart" }
+  { sequelize, modelName: "user" }
 );
 
-module.exports = Cart;
+module.exports = User;

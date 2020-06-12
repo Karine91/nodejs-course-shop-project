@@ -4,9 +4,9 @@ const sequelize = require("../util/database");
 
 const Model = Sequelize.Model;
 
-class Cart extends Model {}
+class Order extends Model {}
 
-Cart.init(
+Order.init(
   {
     id: {
       type: Sequelize.INTEGER,
@@ -15,7 +15,7 @@ Cart.init(
       primaryKey: true,
     },
   },
-  { sequelize, modelName: "cart" }
+  { sequelize, modelName: "order" }
 );
 
-module.exports = Cart;
+module.exports = Order;
