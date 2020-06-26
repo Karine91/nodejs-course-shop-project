@@ -5,24 +5,22 @@ exports.getAddProduct = (req, res, next) => {
     pageTitle: "Add Product",
     path: "/admin/add-product",
     editing: false,
+    isAuthenticated: req.session.user,
   });
 };
 
 exports.postAddProduct = (req, res, next) => {
   const { title, imageUrl, description, price } = req.body;
-  const product = new Product(
+  const product = new Product({
     title,
     price,
     description,
     imageUrl,
-    null,
-    req.user._id
-  );
+    userId: req.session.user._id,
+  });
   product
     .save()
     .then((result) => {
-      // console.log(result);
-      console.log("Create Product");
       res.redirect("/admin/products");
     })
     .catch((err) => {
@@ -36,7 +34,7 @@ exports.getEditProduct = (req, res, next) => {
     return res.redirect("/");
   }
   const prodId = req.params.prodId;
-  Product.fetchById(prodId)
+  Product.findById(prodId)
     .then((product) => {
       if (!product) {
         return res.redirect("/");
@@ -46,6 +44,7 @@ exports.getEditProduct = (req, res, next) => {
         path: "/admin/edit-product",
         editing: editMode,
         product,
+        isAuthenticated: req.session.user,
       });
     })
     .catch((err) => console.log(err));
@@ -60,14 +59,14 @@ exports.postEditProduct = (req, res, next) => {
     productId,
   } = req.body;
 
-  new Product(
-    title,
-    price,
-    description,
-    imageUrl,
-    productId
-  )
-    .save()
+  Product.findById(productId)
+    .then((product) => {
+      product.title = title;
+      product.price = price;
+      product.description = description;
+      product.imageUrl = imageUrl;
+      return product.save();
+    })
     .then(() => {
       res.redirect("/admin/products");
     })
@@ -76,7 +75,7 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.deleteById(prodId)
+  Product.findByIdAndDelete(prodId)
     .then(() => {
       res.redirect("/admin/products");
     })
@@ -84,12 +83,13 @@ exports.postDeleteProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
     .then((products) => {
       res.render("admin/products", {
         prods: products,
         pageTitle: "Admin products",
         path: "/admin/products",
+        isAuthenticated: req.session.user,
       });
     })
     .catch((err) => console.log(err));
