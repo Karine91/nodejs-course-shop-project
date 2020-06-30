@@ -5,6 +5,10 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema({
   name: {
     type: String,
+    //required: true,
+  },
+  password: {
+    type: String,
     required: true,
   },
   email: {
@@ -80,7 +84,11 @@ userSchema.methods.addOrder = function () {
         .model("Order")
         .create({
           items: products,
-          user: { userId: this._id, name: this.name },
+          user: {
+            userId: this._id,
+            name: this.name,
+            email: this.email,
+          },
         })
         .then(() => {
           this.cart = { items: [] };

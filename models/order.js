@@ -18,6 +18,7 @@ const orderSchema = new Schema({
       required: true,
     },
     name: String,
+    email: String,
   },
 });
 

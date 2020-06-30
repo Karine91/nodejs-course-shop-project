@@ -2,6 +2,9 @@ require("dotenv").config();
 const path = require("path");
 const mongoose = require("mongoose");
 const session = require("express-session");
+const csrf = require("csurf");
+const flash = require("connect-flash");
+
 const MongoDbStore = require("connect-mongodb-session")(
   session
 );
@@ -16,6 +19,8 @@ const store = new MongoDbStore({
   uri: process.env.DB_URI,
   collection: "sessions",
 });
+
+const csrfProtection = csrf();
 
 app.set("view engine", "ejs");
 
@@ -34,6 +39,9 @@ app.use(
   })
 );
 
+app.use(csrfProtection);
+app.use(flash());
+
 app.use((req, res, next) => {
   if (!req.session.user) {
     return next();
@@ -44,6 +52,12 @@ app.use((req, res, next) => {
       next();
     })
     .catch((err) => console.log(err));
+});
+
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.user;
+  res.locals.csrfToken = req.csrfToken();
+  next();
 });
 
 app.use("/admin", adminRoutes);
@@ -57,19 +71,6 @@ mongoose.set("useNewUrlParser", true);
 mongoose
   .connect(process.env.DB_URI)
   .then(() => {
-    User.findOne().then((user) => {
-      if (!user) {
-        const user = new User({
-          name: "Karine",
-          email: "test@gmail.com",
-          cart: {
-            items: [],
-          },
-        });
-        user.save();
-      }
-    });
-
     app.listen(3000);
   })
   .catch((err) => console.log(err));
