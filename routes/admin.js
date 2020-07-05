@@ -1,6 +1,7 @@
 const path = require("path");
 
 const express = require("express");
+const { body } = require("express-validator");
 
 const isAuth = require("../middleware/is-auth");
 const adminController = require("../controllers/admin");
@@ -23,6 +24,14 @@ router.get(
 router.post(
   "/add-product",
   isAuth,
+  [
+    body("title").isString().isLength({ min: 3 }).trim(),
+    body("imageUrl").isURL(),
+    body("price").isFloat(),
+    body("description")
+      .isLength({ min: 5, max: 400 })
+      .trim(),
+  ],
   adminController.postAddProduct
 );
 
@@ -34,6 +43,14 @@ router.get(
 router.post(
   "/edit-product",
   isAuth,
+  [
+    body("title").isString().isLength({ min: 3 }).trim(),
+    body("imageUrl").isURL(),
+    body("price").isFloat(),
+    body("description")
+      .isLength({ min: 5, max: 400 })
+      .trim(),
+  ],
   adminController.postEditProduct
 );
 
