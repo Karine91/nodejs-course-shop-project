@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const session = require("express-session");
 const csrf = require("csurf");
 const flash = require("connect-flash");
+const multer = require("multer");
 
 const MongoDbStore = require("connect-mongodb-session")(
   session
@@ -28,8 +29,38 @@ const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
 
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "images");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(
+  multer({ storage: fileStorage, fileFilter }).single(
+    "image"
+  )
+);
 app.use(express.static(path.join(__dirname, "public")));
+app.use(
+  "/images",
+  express.static(path.join(__dirname, "images"))
+);
 app.use(
   session({
     secret: "super secret",
@@ -73,7 +104,7 @@ app.get("/500", errorController.get500);
 app.use(errorController.get404);
 
 app.use((error, req, res, next) => {
-  res.status(404).render("500", {
+  res.status(500).render("500", {
     pageTitle: "Page not found",
     path: "500",
   });
