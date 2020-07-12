@@ -17,11 +17,18 @@ router.post(
   shopController.postCartDeleteProduct
 );
 
-router.get("/orders", isAuth, shopController.getOrders);
-router.post(
-  "/create-order",
+router.get("/checkout", isAuth, shopController.getCheckout);
+router.get(
+  "/checkout/success",
   isAuth,
-  shopController.postOrder
+  shopController.getCheckoutSuccess
 );
+router.get(
+  "/checkout/cancel",
+  isAuth,
+  shopController.getCheckout
+);
+
+router.get("/orders", isAuth, shopController.getOrders);
 
 module.exports = router;
